@@ -19,6 +19,7 @@ import java.util.ArrayList;
  */
 public class main{
     public static void main(String[] args) throws FileNotFoundException{
+        DSPhongBan dsPB = new DSPhongBan();
         DSLuong dsL = new DSLuong();
         DSAccount dsA = new DSAccount();
         Scanner in = new Scanner(new File("NV1.txt"));
@@ -36,6 +37,7 @@ public class main{
 //            System.out.println(tenNV+" "+chucVu+" "+GioiTinh+" "+email+" "+SoDT+" "+NgaySinh+" "+NgayBatDau);
             dSNhanVien.addDSNhanVien(nv);
         }
+        
         new Login(dSNhanVien, dsA, dsL).setVisible(true);
         
     }

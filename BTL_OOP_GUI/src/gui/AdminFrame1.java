@@ -3,9 +3,23 @@ package gui;
 import Class.NhanVien;
 import Class.DSLuong;
 import Class.DSAccount;
+import Class.DSDuAn;
 import Class.DSNhanVien;
+import Class.DSPhongBan;
+import Class.DuAn;
+import Class.PhongBan;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.MouseAdapter;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 /*
@@ -22,6 +36,9 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private DSNhanVien dsNV;
     private DSLuong dsL;
     private DSAccount dsA;
+    private DSPhongBan dsPB;
+    private DSDuAn dsDA;
+    private JPanel glassPane;
     /**
      * Creates new form ChuyenVienFrame1
      */
@@ -30,6 +47,30 @@ public class AdminFrame1 extends javax.swing.JFrame {
         this.dsNV = dsNV;
         this.dsL = dsL;
         this.dsA = dsA;
+        this.dsPB = new DSPhongBan();
+        this.dsDA = new DSDuAn();
+        
+        //--Doc File PhongBan vào dsPB
+        try {
+            Scanner in = new Scanner(new File("PB.txt"));
+            while(in.hasNextLine()){
+                dsPB.addPhongBan(new PhongBan(in.nextLine()));
+            }
+        } catch (FileNotFoundException e) {
+        }
+        
+        //--Doc File DuAn vao dsDA
+        try {
+            Scanner in = new Scanner(new File("DA.txt"));
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().trim().split("\\|");
+                String tenDA = line[0];
+                String ngayThucHien = line[1];
+                dsDA.addDuAn(new DuAn(tenDA, ngayThucHien));
+            }
+        } catch (FileNotFoundException e) {
+        }
+        
         initComponents();
         setData();
     }
@@ -37,18 +78,39 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     
     private void setData(){
-        //cập nhật thông tin phòng ban
-        MaPBText.setText("PB01");
-        TenPBText.setText("Nhân sự");
+        glassPane = new JPanel();
+        glassPane.setOpaque(false); // Glass pane trong suốt
+        glassPane.setLayout(new GridBagLayout());
+
+        // Chặn sự kiện chuột
+        glassPane.addMouseListener(new MouseAdapter() {}); 
+        glassPane.addKeyListener(new KeyAdapter() {});
+        glassPane.add(ThemSuaPanel);
+        setGlassPane(glassPane);
+        glassPane.setVisible(false);
+        ThemSuaPanel.setVisible(false);
         
-        //cập nhật danh sách nhân viên phòng ban
-        DefaultTableModel model = new DefaultTableModel();
-        NhanVienTable1.setModel(model);
-        model.setColumnIdentifiers(new String [] {"Mã NV", "Tên NV", "Chức vụ", "Giới tính", "Email", "SDT", "Ngày sinh", "Ngày Bắt Đầu"});
-//        model.setRowCount(0);
-        for(NhanVien x:dsNV.getDSNhanVien()){
-            model.addRow(x.getData());
+        //Setup DSPhongBan
+        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+        int cnt = 1;
+        for(PhongBan x:dsPB.getDSPhongBan()){
+            modelDSPB.addRow(new Object[]{cnt++, x.getMaPhongBan(), x.getTenPhongBan(),x.getDSNhanVien().size()});
         }
+        
+        
+        
+//        //cập nhật thông tin phòng ban
+//        MaPBText.setText("PB01");
+//        TenPBText.setText("Nhân sự");
+//        
+//        //cập nhật danh sách nhân viên phòng ban
+//        DefaultTableModel model = new DefaultTableModel();
+//        NhanVienPBTable.setModel(model);
+//        model.setColumnIdentifiers(new String [] {"Mã NV", "Tên NV", "Chức vụ", "Giới tính", "Email", "SDT", "Ngày sinh", "Ngày Bắt Đầu"});
+////        model.setRowCount(0);
+//        for(NhanVien x:dsNV.getDSNhanVien()){
+//            model.addRow(x.getData());
+//        }
     }
     
     /**
@@ -59,11 +121,8 @@ public class AdminFrame1 extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         Header = new javax.swing.JPanel();
         AppName = new javax.swing.JLabel();
@@ -77,9 +136,28 @@ public class AdminFrame1 extends javax.swing.JFrame {
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
+        QuanLyPhongBan = new javax.swing.JTabbedPane();
+        DSPhongBan = new javax.swing.JPanel();
+        ThemSuaPanel = new javax.swing.JPanel();
+        XacNhanButton = new javax.swing.JButton();
+        HuyButton = new javax.swing.JButton();
+        ThemSuaTitle = new javax.swing.JLabel();
+        TenTPLabel = new javax.swing.JLabel();
+        TenPBtext = new javax.swing.JTextField();
+        DSPhongBanTitle = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        DSPhongBanTable = new javax.swing.JTable();
+        ThemButton = new javax.swing.JButton();
+        XoaButton = new javax.swing.JButton();
+        SuaButton = new javax.swing.JButton();
+        SearchButton2 = new javax.swing.JButton();
+        SearchText2 = new javax.swing.JTextField();
+        DSNVLabel1 = new javax.swing.JLabel();
+        ChucNangLabel = new javax.swing.JLabel();
+        TTChiTietButton = new javax.swing.JButton();
         PhongBan = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        NhanVienTable1 = new javax.swing.JTable();
+        NhanVienPBTable = new javax.swing.JTable();
         SearchText1 = new javax.swing.JTextField();
         SearchButton1 = new javax.swing.JButton();
         PBTitle = new javax.swing.JLabel();
@@ -112,34 +190,12 @@ public class AdminFrame1 extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
-        DSPhongBan = new javax.swing.JPanel();
-        jPanel13 = new javax.swing.JPanel();
-        jPanel8 = new javax.swing.JPanel();
-        jPanel9 = new javax.swing.JPanel();
-        jPanel5 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("EMS");
         setLocationByPlatform(true);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel1.setBackground(new java.awt.Color(74, 98, 138));
-        jPanel1.setPreferredSize(new java.awt.Dimension(1200, 50));
-        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("EMS");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 0, 0));
-
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(205, 225, 238));
-        jLabel2.setText("CLC - 02");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 0, 0));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 0, 0));
 
         jPanel2.setBackground(new java.awt.Color(205, 225, 238));
         jPanel2.setMaximumSize(new java.awt.Dimension(230, 632));
@@ -228,7 +284,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
         FooterLayout.setHorizontalGroup(
             FooterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, FooterLayout.createSequentialGroup()
-                .addContainerGap(557, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(FooterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel27)
                     .addComponent(jLabel28))
@@ -246,10 +302,163 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
         jPanel2.add(Footer, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 600, 1200, 100));
 
+        DSPhongBan.setBackground(new java.awt.Color(228, 238, 244));
+        DSPhongBan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        ThemSuaPanel.setBackground(new java.awt.Color(144, 210, 254));
+        ThemSuaPanel.setLayout(new java.awt.GridBagLayout());
+
+        XacNhanButton.setText("Xác nhận");
+        XacNhanButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                XacNhanButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(48, 91, 20, 0);
+        ThemSuaPanel.add(XacNhanButton, gridBagConstraints);
+
+        HuyButton.setText("Hủy");
+        HuyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HuyButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(48, 112, 20, 0);
+        ThemSuaPanel.add(HuyButton, gridBagConstraints);
+
+        ThemSuaTitle.setFont(new java.awt.Font("Segoe UI", 1, 22)); // NOI18N
+        ThemSuaTitle.setText("Thêm thông tin phòng ban mới");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(14, 67, 0, 71);
+        ThemSuaPanel.add(ThemSuaTitle, gridBagConstraints);
+
+        TenTPLabel.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        TenTPLabel.setText("Tên phòng ban:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(47, 67, 0, 0);
+        ThemSuaPanel.add(TenTPLabel, gridBagConstraints);
+
+        TenPBtext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TenPBtextActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 122;
+        gridBagConstraints.ipady = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(50, 18, 0, 71);
+        ThemSuaPanel.add(TenPBtext, gridBagConstraints);
+
+        DSPhongBan.add(ThemSuaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 260, 470, 210));
+
+        DSPhongBanTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        DSPhongBanTitle.setText("QUẢN LÝ PHÒNG BAN");
+        DSPhongBan.add(DSPhongBanTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+
+        DSPhongBanTable.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        DSPhongBanTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "STT", "MaPB", "Tên PB", "Tổng số nhân viên"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        DSPhongBanTable.setRowHeight(50);
+        jScrollPane2.setViewportView(DSPhongBanTable);
+
+        DSPhongBan.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, 900, 360));
+
+        ThemButton.setText("Thêm");
+        ThemButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ThemButtonActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(ThemButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 110, -1, -1));
+
+        XoaButton.setText("Xóa");
+        XoaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                XoaButtonActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(XoaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 110, -1, -1));
+
+        SuaButton.setText("Sửa");
+        SuaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SuaButtonActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(SuaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 110, -1, -1));
+
+        SearchButton2.setText("Tìm");
+        SearchButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SearchButton2ActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(SearchButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 150, -1, 20));
+
+        SearchText2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SearchText2ActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(SearchText2, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 240, -1));
+
+        DSNVLabel1.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
+        DSNVLabel1.setText("Bấm nút bên để truy cập riêng từng phòng ban:");
+        DSPhongBan.add(DSNVLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, -1, -1));
+
+        ChucNangLabel.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        ChucNangLabel.setText("Chức năng:");
+        DSPhongBan.add(ChucNangLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 70, -1, -1));
+
+        TTChiTietButton.setText("Thông tin chi tiết");
+        TTChiTietButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TTChiTietButtonActionPerformed(evt);
+            }
+        });
+        DSPhongBan.add(TTChiTietButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 150, -1, -1));
+
+        QuanLyPhongBan.addTab("tab1.1", DSPhongBan);
+
         PhongBan.setBackground(new java.awt.Color(228, 238, 244));
         PhongBan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        NhanVienTable1.setModel(new javax.swing.table.DefaultTableModel(
+        NhanVienPBTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -265,8 +474,16 @@ public class AdminFrame1 extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        NhanVienTable1.setRowHeight(25);
-        jScrollPane1.setViewportView(NhanVienTable1);
+        NhanVienPBTable.setRowHeight(25);
+        jScrollPane1.setViewportView(NhanVienPBTable);
+        if (NhanVienPBTable.getColumnModel().getColumnCount() > 0) {
+            NhanVienPBTable.getColumnModel().getColumn(2).setHeaderValue("Chức vụ");
+            NhanVienPBTable.getColumnModel().getColumn(3).setHeaderValue("Giới tính");
+            NhanVienPBTable.getColumnModel().getColumn(4).setHeaderValue("Email");
+            NhanVienPBTable.getColumnModel().getColumn(5).setHeaderValue("SDT");
+            NhanVienPBTable.getColumnModel().getColumn(6).setHeaderValue("Ngày sinh");
+            NhanVienPBTable.getColumnModel().getColumn(7).setHeaderValue("Ngày Bắt Đầu");
+        }
 
         PhongBan.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 900, 360));
 
@@ -309,7 +526,9 @@ public class AdminFrame1 extends javax.swing.JFrame {
         TenPBText.setText("null");
         PhongBan.add(TenPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 140, -1, -1));
 
-        jTabbedPane2.addTab("tab1", PhongBan);
+        QuanLyPhongBan.addTab("tab1.2", PhongBan);
+
+        jTabbedPane2.addTab("tab1", QuanLyPhongBan);
 
         TTCN.setBackground(new java.awt.Color(228, 238, 244));
         TTCN.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -450,68 +669,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
         jTabbedPane2.addTab("tab3", DSDuAN);
 
-        DSPhongBan.setBackground(new java.awt.Color(228, 238, 244));
-        DSPhongBan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel13.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel13.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel13MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel13MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel13MouseExited(evt);
-            }
-        });
-        DSPhongBan.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 150, 170, 110));
-
-        jPanel8.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel8.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel8MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel8MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel8MouseExited(evt);
-            }
-        });
-        DSPhongBan.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 150, 170, 110));
-
-        jPanel9.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel9MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel9MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel9MouseExited(evt);
-            }
-        });
-        DSPhongBan.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 290, 170, 110));
-
-        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel5.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel5MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel5MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel5MouseExited(evt);
-            }
-        });
-        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        DSPhongBan.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, 170, 110));
-
-        jTabbedPane2.addTab("tab3", DSPhongBan);
-
         jPanel2.add(jTabbedPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, -40, 960, 730));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1200, 690));
@@ -626,53 +783,112 @@ public class AdminFrame1 extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_SearchButton1ActionPerformed
 
-    private void jPanel13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseClicked
+    private void ThemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ThemButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel13MouseClicked
+        glassPane.setVisible(true);
+        ThemSuaPanel.setVisible(true);
+        ThemSuaTitle.setText("Thêm thông tin phòng ban mới");
+        TenPBtext.setText("");
+    }//GEN-LAST:event_ThemButtonActionPerformed
 
-    private void jPanel13MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseEntered
+    private void HuyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HuyButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel13MouseEntered
+        glassPane.setVisible(false);
+        ThemSuaPanel.setVisible(false);
+    }//GEN-LAST:event_HuyButtonActionPerformed
 
-    private void jPanel13MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel13MouseExited
+    private void XacNhanButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XacNhanButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel13MouseExited
+        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+        if(TenPBtext.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Xin hãy thêm đủ thông tin!");
+        }else{
+            if(ThemSuaTitle.getText().equals("Chỉnh sửa thông tin phòng ban")){
+                String newName = TenPBtext.getText();
+                for(PhongBan x:dsPB.getDSPhongBan()){
+                    if(x.getMaPhongBan().equals(modelDSPB.getValueAt(DSPhongBanTable.getSelectedRow(), 1))){
+                        x.setTenPhongBan(newName);
+                        newName = x.getTenPhongBan();
+                        break;
+                    }
+                }
+                modelDSPB.setValueAt(newName,DSPhongBanTable.getSelectedRow(), 2); 
+                ThemSuaPanel.setVisible(false);
+            }else{
+                String newName = TenPBtext.getText();
+                PhongBan newPB = new PhongBan(newName);
+                dsPB.addPhongBan(newPB);
+                Object[] newPBData = {DSPhongBanTable.getRowCount()+1, newPB.getMaPhongBan(), newPB.getTenPhongBan(), 0};
+                modelDSPB.addRow(newPBData);
+                ThemSuaPanel.setVisible(false);
+            }
+            glassPane.setVisible(false);
+        }
+    }//GEN-LAST:event_XacNhanButtonActionPerformed
 
-    private void jPanel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel8MouseClicked
+    private void SuaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SuaButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel8MouseClicked
+        
+        
+        if(DSPhongBanTable.getSelectedRowCount()==1){
+            DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+            ThemSuaTitle.setText("Chỉnh sửa thông tin phòng ban");
+            String tblTenPB = modelDSPB.getValueAt(DSPhongBanTable.getSelectedRow(), 2).toString();
+            TenPBtext.setText(tblTenPB);
+            glassPane.setVisible(true);
+            ThemSuaPanel.setVisible(true);
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 phòng ban để chỉnh sửa!");
+        }
+    }//GEN-LAST:event_SuaButtonActionPerformed
 
-    private void jPanel8MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel8MouseEntered
+    private void XoaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XoaButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel8MouseEntered
+        if(DSPhongBanTable.getSelectedRowCount()==1){
+            DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+            dsPB.removePhongBan(dsPB.SearchPhongBan(DSPhongBanTable.getValueAt(DSPhongBanTable.getSelectedRow(), 1).toString())); //Xóa Phòng ban đang chọn trong dsPB
+            modelDSPB.removeRow(DSPhongBanTable.getSelectedRow()); //Xóa Phòng ban đang chọn trong giao diện
+            for(int i=1;i<=DSPhongBanTable.getRowCount();i++){
+                modelDSPB.setValueAt(i, i-1, 0);
+            }
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 phòng ban để xóa!");
+        }
 
-    private void jPanel8MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel8MouseExited
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel8MouseExited
+    }//GEN-LAST:event_XoaButtonActionPerformed
 
-    private void jPanel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel9MouseClicked
+    private void SearchButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchButton2ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel9MouseClicked
+    }//GEN-LAST:event_SearchButton2ActionPerformed
 
-    private void jPanel9MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel9MouseEntered
+    private void SearchText2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchText2ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel9MouseEntered
+    }//GEN-LAST:event_SearchText2ActionPerformed
 
-    private void jPanel9MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel9MouseExited
+    private void TTChiTietButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TTChiTietButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel9MouseExited
+        DefaultTableModel modelNVPB = (DefaultTableModel)NhanVienPBTable.getModel();
+        if(DSPhongBanTable.getSelectedRowCount()==1){
+            int ind = DSPhongBanTable.getSelectedRow();
+            String MaPB = DSPhongBanTable.getValueAt(ind, 1).toString();
+            PhongBan pb = dsPB.SearchPhongBan(MaPB);
+            
+            MaPBText.setText(pb.getMaPhongBan());
+            TenPBText.setText(pb.getTenPhongBan());
+            modelNVPB.setRowCount(0);
+            for(NhanVien x:pb.getDSNhanVien()){
+                modelNVPB.addRow(x.getData());
+            }
+            QuanLyPhongBan.setSelectedIndex(1);
+            
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 phòng ban để truy cập!");
+        }
+    }//GEN-LAST:event_TTChiTietButtonActionPerformed
 
-    private void jPanel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseClicked
+    private void TenPBtextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TenPBtextActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel5MouseClicked
-
-    private void jPanel5MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseEntered
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel5MouseEntered
-
-    private void jPanel5MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel5MouseExited
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jPanel5MouseExited
+    }//GEN-LAST:event_TenPBtextActionPerformed
     
     
     /**
@@ -724,28 +940,44 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AppName;
+    private javax.swing.JLabel ChucNangLabel;
     private javax.swing.JPanel DSDuAN;
     private javax.swing.JLabel DSNVLabel;
+    private javax.swing.JLabel DSNVLabel1;
     private javax.swing.JPanel DSPhongBan;
+    private javax.swing.JTable DSPhongBanTable;
+    private javax.swing.JLabel DSPhongBanTitle;
     private javax.swing.JPanel Footer;
     private javax.swing.JPanel Header;
+    private javax.swing.JButton HuyButton;
     private javax.swing.JLabel LogoutButton;
     private javax.swing.JLabel MaPBLabel;
     private javax.swing.JLabel MaPBText;
-    private javax.swing.JTable NhanVienTable1;
+    private javax.swing.JTable NhanVienPBTable;
     private javax.swing.JLabel PBTitle;
     private javax.swing.JPanel PhongBan;
+    private javax.swing.JTabbedPane QuanLyPhongBan;
     private javax.swing.JButton SearchButton1;
+    private javax.swing.JButton SearchButton2;
     private javax.swing.JTextField SearchText1;
+    private javax.swing.JTextField SearchText2;
     private javax.swing.JPanel Sidebar;
     private javax.swing.JButton SidebarDuAn;
     private javax.swing.JButton SidebarPhongBan;
     private javax.swing.JButton SidebarTTCN;
+    private javax.swing.JButton SuaButton;
     private javax.swing.JLabel SubAppName;
     private javax.swing.JPanel TTCN;
+    private javax.swing.JButton TTChiTietButton;
     private javax.swing.JLabel TenPBLabel;
     private javax.swing.JLabel TenPBText;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField TenPBtext;
+    private javax.swing.JLabel TenTPLabel;
+    private javax.swing.JButton ThemButton;
+    private javax.swing.JPanel ThemSuaPanel;
+    private javax.swing.JLabel ThemSuaTitle;
+    private javax.swing.JButton XacNhanButton;
+    private javax.swing.JButton XoaButton;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -756,7 +988,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -767,18 +998,13 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel12;
-    private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane2;
     // End of variables declaration//GEN-END:variables
 }

@@ -34,27 +34,21 @@ public class PhongBan {
     
     // phương thức thiết lập tên phòng ban
     public void setTenPhongBan(String TenPhongBan) {
-        this.TenPhongBan = TenPhongBan;
+        this.TenPhongBan = chuanHoaTenPhongBan(TenPhongBan);
     }
 
     public String chuanHoaTenPhongBan(String s){
-        s="";
-        String[] tmp= this.TenPhongBan.split("\\s+");
+        String res="";
+        String[] tmp= s.split("\\s+");
         for(String x:tmp){
-            s+=x.substring(0,1).toUpperCase()+x.substring(1).toLowerCase()+" ";
+            res+=x.substring(0,1).toUpperCase()+x.substring(1).toLowerCase()+" ";
         }
-        return s.trim();
+        return res.trim();
     }
 
     // phương thức trả về danh sách nhân viên thuộc phòng ban cần tìm
     public List<NhanVien> getDSNhanVien() {
         Collections.sort(DSNhanVien); // sắp xếp theo thứ tự từ điển của mã nhân viên
         return DSNhanVien;
-    }
-    
-    // phương thức trả thông tin phòng ban theo dạng chuỗi
-    @Override
-    public String toString() {
-        return MaPhongBan + " " + TenPhongBan;
     }
 }

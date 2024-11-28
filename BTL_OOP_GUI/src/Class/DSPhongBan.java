@@ -16,18 +16,17 @@ public class DSPhongBan {
     }
     
     // b.1) Thêm mới phòng ban vào danh sách phòng ban của công ty
-    public void themPhongBan(String tenPhongBan) {
-        PhongBan phongBanMoi = new PhongBan(tenPhongBan);
-        dsPhongBan.add(phongBanMoi);
+    public void addPhongBan(PhongBan pb) {
+        dsPhongBan.add(pb);
     }
 
     // b.2) Xóa phòng ban khỏi danh sách phòng ban của công ty
-    public void xoaPhongBan(PhongBan phongBan) {
-        dsPhongBan.remove(phongBan);
+    public void removePhongBan(PhongBan pb) {
+        dsPhongBan.remove(pb);
     }
 
     // Phương thức tìm phòng ban theo mã
-    public PhongBan timPhongBan(String n) {
+    public PhongBan SearchPhongBan(String n) {
         for (PhongBan pb : dsPhongBan) {
             if (pb.getMaPhongBan().equals(n) || pb.getTenPhongBan().equals(n)) {
                 return pb;
