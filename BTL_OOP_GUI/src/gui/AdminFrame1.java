@@ -318,6 +318,8 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
         jPanel2.add(Sidebar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 42, 240, 700));
 
+        Footer.setBackground(new java.awt.Color(207, 207, 255));
+
         jLabel27.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel27.setForeground(new java.awt.Color(153, 153, 153));
         jLabel27.setText("EMPLOYEES MANAGEMENT SYSTEM");
