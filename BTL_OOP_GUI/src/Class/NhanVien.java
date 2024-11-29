@@ -30,13 +30,13 @@ public class NhanVien implements Comparable<NhanVien>{
 
     public NhanVien( String tenNV, String chucVu, String gioiTinh, String email, String soDT, String ngaySinh, String ngayBatDau) {
         this.maNV = "NV" + String.format("%02d",COUNT++); // Mã nhân viên tự động tăng.
-        this.tenNV = tenNV;
-        this.chucVu = chucVu;
-        this.gioiTinh = gioiTinh;
-        this.email = email;
-        this.soDT = soDT;
-        this.ngaySinh = ngaySinh;
-        this.ngayBatDau = ngayBatDau;
+        this.tenNV = checkFormatName(tenNV);
+        this.chucVu = checkFormatName(chucVu);
+        this.gioiTinh = checkFormatName(gioiTinh);
+        this.email = checkFormatEmail(email);
+        this.soDT = checkFormatSoDT(soDT);
+        this.ngaySinh = checkFormatDate(ngaySinh);
+        this.ngayBatDau = checkFormatDate(ngayBatDau);
     }
 
     // setter và getter cho các thuộc tính
@@ -112,10 +112,92 @@ public class NhanVien implements Comparable<NhanVien>{
         res[7] = getNgayBatDau();
         return res;
     }
+
+    // Kiểm tra và format họ và tên.
+    public String checkFormatName( String tmpName ) {
+        // Kiem tra format ho va ten.
+        final String NAME_REGEX = "[a-zA-Z\s]+";
+        while ( !tmpName.matches(NAME_REGEX) ) {
+            System.out.println("Invalid name format! Please enter again: ");
+            tmpName = scanner.nextLine();
+        }
+
+        // Chuan hoa ho va ten (Viet hoa chu cai dau moi tu, cac chu cai sau viet thuong).
+        StringBuilder formattedName = new StringBuilder();
+        String[] tmpList = tmpName.trim().split("\\s+");
+
+        for ( int i = 0; i < tmpList.length; i++ ) {
+            tmpList[i] = tmpList[i].substring(0, 1).toUpperCase() + tmpList[i].substring(1).toLowerCase();
+            formattedName.append(tmpList[i]).append(" ");
+        }
+
+        return String.valueOf(formattedName).trim();
+    }
+
+    // Kiểm tra đầu vào email. Sử dụng biểu thức chính quy (Regex) để kiểm tra format.
+    public String checkFormatEmail( String tmpEmail ) {
+        final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        while ( !tmpEmail.matches(EMAIL_REGEX) ) {
+            System.out.println("Invalid email format! Please enter again: ");
+            tmpEmail = scanner.nextLine();
+        }
+
+        return tmpEmail;
+    }
+
+    // Kiểm tra đầu vào Số điện thoại. Sử dụng biểu thức chính quy (Regex) để kiểm tra format.
+    public String checkFormatSoDT( String tmpSDT ) {
+        final String PHONE_NUMBER_REGEX = "^\\d{10}$";
+        while ( !tmpSDT.matches(PHONE_NUMBER_REGEX) || tmpSDT.length() != 10 ) {
+            System.out.println("Invalid phone number format! Please enter again: ");
+            tmpSDT = scanner.nextLine();
+        }
+
+        return tmpSDT;
+    }
+
+    // Kiểm tra đầu vào ngày tháng năm sinh, format dd/mm/yyyy. Sử dụng biểu thức chính quy (Regex) để kiểm tra format.
+    public String checkFormatDate( String tmpDate ) {
+        final String DATE_REGEX = "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\\d\\d$";
+
+        while (true) {
+            // Kiểm tra định dạng ngày tháng
+            if (!tmpDate.matches(DATE_REGEX)) {
+                System.out.println("Invalid date (ngaySinh/ngayBatDau) format! Please enter again: ");
+                tmpDate = scanner.nextLine();
+                continue; // Tiếp tục vòng lặp nếu định dạng không hợp lệ
+            }
+
+            // Lấy năm, tháng, ngày từ tmpDate
+            int tmpNamSinh = Integer.parseInt(tmpDate.substring(tmpDate.length() - 4));
+            int tmpThangSinh = Integer.parseInt(tmpDate.substring(3, 5));
+            int tmpNgaySinh = Integer.parseInt(tmpDate.substring(0, 2));
+
+            // Kiểm tra năm nhuận
+            boolean checkNamThuan = (tmpNamSinh % 4 == 0 && tmpNamSinh % 100 != 0) || (tmpNamSinh % 400 == 0);
+            int[] soNgayTrongThang = {31, checkNamThuan ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+            // Kiểm tra giá trị ngày, tháng
+            if (tmpThangSinh < 1 || tmpThangSinh > 12 || tmpNgaySinh <= 0 || tmpNgaySinh > soNgayTrongThang[tmpThangSinh - 1]) {
+                System.out.println("Invalid date (ngaySinh/ngayBatDau) format! Please enter again: ");
+                tmpDate = scanner.nextLine();
+                continue; // Tiếp tục vòng lặp nếu giá trị không hợp lệ
+            }
+
+            // Nếu mọi thứ hợp lệ, trả về tmpDate
+            return tmpDate;
+        }
+    }
     
     @Override
     public int compareTo(NhanVien b){
         if(b.chucVu.equals(this.chucVu)) return this.maNV.compareTo(b.maNV);
         return b.chucVu.compareTo(this.chucVu);
+    }
+    
+    // Ghi đè lại phương thức toString để kiểm tra code có hoạt động đúng không, in ra man hinh cac thuoc tinh.
+    @Override
+    public String toString() {
+        return maNV+" "+ tenNV+" "+ chucVu+" "+ gioiTinh+" "+ email+" "+ soDT+" "+ ngaySinh+" "+ ngayBatDau;
     }
 }

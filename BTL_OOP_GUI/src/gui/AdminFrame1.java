@@ -18,8 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -53,26 +51,25 @@ public class AdminFrame1 extends javax.swing.JFrame {
         this.dsDA = new DSDuAn();
         
         //--Doc File PhongBan vào dsPB
-        //Setup data từng phòng ban
         try {
-            //Đặt lại biến static cnt để tạo maPB từ đầu
-            PhongBan tmp = new PhongBan();
-            tmp.setupCnt();
-            
             Scanner in = new Scanner(new File("PB.txt"));
             while(in.hasNextLine()){
-                String[] line = in.nextLine().trim().split("\\|");
-                PhongBan pb = new PhongBan(line[0]);
-                for(int i=1;i<line.length;i++){
-                    pb.addNhanVien(dsNV.searchNhanVien(line[i]));
-                }
-                dsPB.addPhongBan(pb);
+                dsPB.addPhongBan(new PhongBan(in.nextLine()));
             }
         } catch (FileNotFoundException e) {
         }
         
         //--Doc File DuAn vao dsDA
-        dsDA.readFile();
+        try {
+            Scanner in = new Scanner(new File("DA.txt"));
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().trim().split("\\|");
+                String tenDA = line[0];
+                String ngayThucHien = line[1];
+                dsDA.addDuAn(new DuAn(tenDA, ngayThucHien));
+            }
+        } catch (FileNotFoundException e) {
+        }
         
         initComponents();
         setData();
@@ -125,11 +122,8 @@ public class AdminFrame1 extends javax.swing.JFrame {
         glassPane.setVisible(false);
         ThemSuaPanel.setVisible(false);
         
-        
-        
-        //Setup DSPhongBan, DSNonNVPB 
+        //Setup DSPhongBan
         ResetTablePB();
-        SetupNonNVPBTable();
         
         
         
@@ -212,7 +206,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
         XoaNVPBButton = new javax.swing.JButton();
         ChucNangLabel1 = new javax.swing.JLabel();
         ResetNVPBButton = new javax.swing.JLabel();
-        BackNVPBButton = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
         TTCN = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -693,13 +687,13 @@ public class AdminFrame1 extends javax.swing.JFrame {
         });
         PhongBan.add(ResetNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 60, 30, 30));
 
-        BackNVPBButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back.png"))); // NOI18N
-        BackNVPBButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back.png"))); // NOI18N
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                BackNVPBButtonMouseClicked(evt);
+                jLabel2MouseClicked(evt);
             }
         });
-        PhongBan.add(BackNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 30, 30));
+        PhongBan.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 30, 30));
 
         QuanLyPhongBan.addTab("tab1.2", PhongBan);
 
@@ -1000,14 +994,12 @@ public class AdminFrame1 extends javax.swing.JFrame {
                         break;
                     }
                 }
-                dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
                 modelDSPB.setValueAt(newName,DSPhongBanTable.getSelectedRow(), 2); 
                 ThemSuaPanel.setVisible(false);
             }else{
                 String newName = TenPBtext.getText();
                 PhongBan newPB = new PhongBan(newName);
                 dsPB.addPhongBan(newPB);
-                dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
                 Object[] newPBData = {DSPhongBanTable.getRowCount()+1, newPB.getMaPhongBan(), newPB.getTenPhongBan(), 0};
                 modelDSPB.addRow(newPBData);
                 ThemSuaPanel.setVisible(false);
@@ -1037,7 +1029,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
         if(DSPhongBanTable.getSelectedRowCount()==1){
             DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
             dsPB.removePhongBan(dsPB.SearchPhongBan(DSPhongBanTable.getValueAt(DSPhongBanTable.getSelectedRow(), 1).toString())); //Xóa Phòng ban đang chọn trong dsPB
-            dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
             modelDSPB.removeRow(DSPhongBanTable.getSelectedRow()); //Xóa Phòng ban đang chọn trong giao diện
             for(int i=1;i<=DSPhongBanTable.getRowCount();i++){
                 modelDSPB.setValueAt(i, i-1, 0);
@@ -1119,7 +1110,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
             NhanVien nv = dsNV.searchNhanVien(maNV);
             PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
             pb.removeNhanVien(nv);
-            dsPB.writeFile();
             modelNVPB.removeRow(ind);
         }else{
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 nhân viên để thêm!");
@@ -1141,7 +1131,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
             NhanVien nv = dsNV.searchNhanVien(maNV);
             PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
             pb.addNhanVien(nv);
-            dsPB.writeFile();
             modelNVPB.addRow(nv.getData());
             glassPane.setVisible(false);
             ThemNVPBPanel.setVisible(false);
@@ -1155,15 +1144,13 @@ public class AdminFrame1 extends javax.swing.JFrame {
         ResetTableNVPB();
     }//GEN-LAST:event_ResetNVPBButtonMouseClicked
 
-    private void BackNVPBButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BackNVPBButtonMouseClicked
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         // TODO add your handling code here:
-        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
-        modelDSPB.setValueAt(dsPB.SearchPhongBan(MaPBText.getText()).getDSNhanVien().size(), DSPhongBanTable.getSelectedRow(), 3);
         glassPane.remove(ThemNVPBPanel);
         glassPane.add(ThemSuaPanel);
         ThemSuaPanel.setVisible(false);
         QuanLyPhongBan.setSelectedIndex(0);
-    }//GEN-LAST:event_BackNVPBButtonMouseClicked
+    }//GEN-LAST:event_jLabel2MouseClicked
     
     
     /**
@@ -1215,7 +1202,6 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AppName;
-    private javax.swing.JLabel BackNVPBButton;
     private javax.swing.JLabel ChucNangLabel;
     private javax.swing.JLabel ChucNangLabel1;
     private javax.swing.JPanel DSDuAN;
@@ -1275,6 +1261,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;

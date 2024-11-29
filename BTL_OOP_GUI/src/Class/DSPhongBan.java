@@ -1,12 +1,7 @@
 package Class;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class DSPhongBan {
     private List<PhongBan> dsPhongBan; // Danh sách phòng ban của công ty
@@ -14,30 +9,6 @@ public class DSPhongBan {
     // Constructor khởi tạo danh sách phòng ban
     public DSPhongBan() {
         this.dsPhongBan = new ArrayList<>();
-    }
-    
-    public void writeFile(){
-        try {
-            FileWriter in = new FileWriter(new File("PB.txt"));
-            int cnt = 1;
-            for(PhongBan x:dsPhongBan){
-                if(cnt++ < dsPhongBan.size()){
-                    in.write(x.getTenPhongBan());
-                    for(NhanVien y:x.getDSNhanVien()){
-                        in.write("|"+y.getMaNV());
-                    }
-                    in.write("\n");
-                }
-                else {
-                    in.write(x.getTenPhongBan());
-                    for(NhanVien y:x.getDSNhanVien()){
-                        in.write("|"+y.getMaNV());
-                    }
-                }
-            }
-            in.close();
-        } catch (IOException e) {
-        }
     }
 
     public List<PhongBan> getDSPhongBan(){

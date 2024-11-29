@@ -7,20 +7,12 @@ public class PhongBan {
     private List<NhanVien> DSNhanVien = new ArrayList<>();// dùng arraylist để lưu (quản lí) nhân viên
     private String MaPhongBan, TenPhongBan;// thuộc tính mã phòng ban, tên phòng ban.
 
-    public PhongBan() {
-        
-    }
-    
     //Constructor có tham số, khởi tạo mã phòng ban tăng dần theo mẫu, tên phòng ban.
     public PhongBan(String TenPhongBan) {
         this.MaPhongBan = "PB" + String.format("%02d", cnt++);
         this.TenPhongBan = chuanHoaTenPhongBan(TenPhongBan);
     }
 
-    public void setupCnt(){
-        cnt=1;
-    }
-    
     // phương thức thêm nhân viên vào phòng ban.
     public void addNhanVien(NhanVien x) {
         DSNhanVien.add(x);
