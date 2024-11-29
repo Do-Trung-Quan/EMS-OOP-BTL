@@ -1,3 +1,3 @@
-Nhân sự
-Marketing
-Kĩ thuẬt
+Nhân Sự|NV01|NV02|NV03
+Marketing|NV07|NV08
+Kĩ Thuật|NV04|NV05|NV06

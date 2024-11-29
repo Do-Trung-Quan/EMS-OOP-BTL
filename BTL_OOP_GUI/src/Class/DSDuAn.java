@@ -1,5 +1,8 @@
 package Class;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class DSDuAn {
     private ArrayList<DuAn> dsDuAn; // Danh sách các dự án của công ty
@@ -9,6 +12,19 @@ public class DSDuAn {
         this.dsDuAn = new ArrayList<>();
     }
 
+    public void readFile(){
+        try {
+            Scanner in = new Scanner(new File("DA.txt"));
+            while(in.hasNextLine()){
+                String[] line = in.nextLine().trim().split("\\|");
+                String tenDA = line[0];
+                String ngayThucHien = line[1];
+                dsDuAn.add(new DuAn(tenDA, ngayThucHien));
+            }
+        } catch (FileNotFoundException e) {
+        }
+    }
+    
     // c.1) Thêm mới dự án vào danh sách dự án của công ty
     public void addDuAn(DuAn da) {
         dsDuAn.add(da);

@@ -18,6 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -51,31 +53,64 @@ public class AdminFrame1 extends javax.swing.JFrame {
         this.dsDA = new DSDuAn();
         
         //--Doc File PhongBan vào dsPB
+        //Setup data từng phòng ban
         try {
+            //Đặt lại biến static cnt để tạo maPB từ đầu
+            PhongBan tmp = new PhongBan();
+            tmp.setupCnt();
+            
             Scanner in = new Scanner(new File("PB.txt"));
             while(in.hasNextLine()){
-                dsPB.addPhongBan(new PhongBan(in.nextLine()));
+                String[] line = in.nextLine().trim().split("\\|");
+                PhongBan pb = new PhongBan(line[0]);
+                for(int i=1;i<line.length;i++){
+                    pb.addNhanVien(dsNV.searchNhanVien(line[i]));
+                }
+                dsPB.addPhongBan(pb);
             }
         } catch (FileNotFoundException e) {
         }
         
         //--Doc File DuAn vao dsDA
-        try {
-            Scanner in = new Scanner(new File("DA.txt"));
-            while(in.hasNextLine()){
-                String[] line = in.nextLine().trim().split("\\|");
-                String tenDA = line[0];
-                String ngayThucHien = line[1];
-                dsDA.addDuAn(new DuAn(tenDA, ngayThucHien));
-            }
-        } catch (FileNotFoundException e) {
-        }
+        dsDA.readFile();
         
         initComponents();
         setData();
     }
     
-
+    private void ResetTablePB(){
+        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+        modelDSPB.setRowCount(0);
+        int cnt = 1;
+        for(PhongBan x:dsPB.getDSPhongBan()){
+            modelDSPB.addRow(new Object[]{cnt++, x.getMaPhongBan(), x.getTenPhongBan(),x.getDSNhanVien().size()});
+        }
+    }
+    
+    private void ResetTableNVPB(){
+        DefaultTableModel modelNVPB = (DefaultTableModel)NhanVienPBTable.getModel();
+        modelNVPB.setRowCount(0);
+        PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
+//        int cnt = 1;
+        for(NhanVien x:pb.getDSNhanVien()){
+            modelNVPB.addRow(x.getData());
+        }
+    }
+    
+    private void SetupNonNVPBTable(){
+        DefaultTableModel modelNonNVPB = (DefaultTableModel)NonNVPBTable.getModel();
+        modelNonNVPB.setRowCount(0);
+        for(NhanVien x:dsNV.getDSNhanVien()){
+            int ok = 0;
+            for(PhongBan y:dsPB.getDSPhongBan()){
+                if(y.getDSNhanVien().contains(x)){
+                    ok=1;
+                    break;
+                }
+            }
+            if(ok==0) modelNonNVPB.addRow(x.getData());
+        }
+    }
     
     private void setData(){
         glassPane = new JPanel();
@@ -90,12 +125,11 @@ public class AdminFrame1 extends javax.swing.JFrame {
         glassPane.setVisible(false);
         ThemSuaPanel.setVisible(false);
         
-        //Setup DSPhongBan
-        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
-        int cnt = 1;
-        for(PhongBan x:dsPB.getDSPhongBan()){
-            modelDSPB.addRow(new Object[]{cnt++, x.getMaPhongBan(), x.getTenPhongBan(),x.getDSNhanVien().size()});
-        }
+        
+        
+        //Setup DSPhongBan, DSNonNVPB 
+        ResetTablePB();
+        SetupNonNVPBTable();
         
         
         
@@ -150,22 +184,35 @@ public class AdminFrame1 extends javax.swing.JFrame {
         ThemButton = new javax.swing.JButton();
         XoaButton = new javax.swing.JButton();
         SuaButton = new javax.swing.JButton();
-        SearchButton2 = new javax.swing.JButton();
-        SearchText2 = new javax.swing.JTextField();
+        SearchPBButton = new javax.swing.JButton();
+        SearchPBText = new javax.swing.JTextField();
         DSNVLabel1 = new javax.swing.JLabel();
         ChucNangLabel = new javax.swing.JLabel();
         TTChiTietButton = new javax.swing.JButton();
+        ResetButton = new javax.swing.JLabel();
         PhongBan = new javax.swing.JPanel();
+        ThemNVPBPanel = new javax.swing.JPanel();
+        ThemNVPBTitle1 = new javax.swing.JLabel();
+        HuyNVPBButton = new javax.swing.JButton();
+        XacNhanNVPBButton = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        NonNVPBTable = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         NhanVienPBTable = new javax.swing.JTable();
-        SearchText1 = new javax.swing.JTextField();
-        SearchButton1 = new javax.swing.JButton();
+        SearchNVPBText = new javax.swing.JTextField();
+        SearchNVPBButton = new javax.swing.JButton();
         PBTitle = new javax.swing.JLabel();
         MaPBLabel = new javax.swing.JLabel();
         MaPBText = new javax.swing.JLabel();
         DSNVLabel = new javax.swing.JLabel();
         TenPBLabel = new javax.swing.JLabel();
         TenPBText = new javax.swing.JLabel();
+        ThemNVPBButton = new javax.swing.JButton();
+        XoaNVPBButton = new javax.swing.JButton();
+        ChucNangLabel1 = new javax.swing.JLabel();
+        ResetNVPBButton = new javax.swing.JLabel();
+        BackNVPBButton = new javax.swing.JLabel();
         TTCN = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
@@ -370,11 +417,11 @@ public class AdminFrame1 extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(50, 18, 0, 71);
         ThemSuaPanel.add(TenPBtext, gridBagConstraints);
 
-        DSPhongBan.add(ThemSuaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 260, 470, 210));
+        DSPhongBan.add(ThemSuaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 280, 470, 210));
 
         DSPhongBanTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         DSPhongBanTitle.setText("QUẢN LÝ PHÒNG BAN");
-        DSPhongBan.add(DSPhongBanTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+        DSPhongBan.add(DSPhongBanTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, -1, -1));
 
         DSPhongBanTable.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         DSPhongBanTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -396,7 +443,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
         DSPhongBanTable.setRowHeight(50);
         jScrollPane2.setViewportView(DSPhongBanTable);
 
-        DSPhongBan.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, 900, 360));
+        DSPhongBan.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 900, 360));
 
         ThemButton.setText("Thêm");
         ThemButton.addActionListener(new java.awt.event.ActionListener() {
@@ -404,7 +451,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
                 ThemButtonActionPerformed(evt);
             }
         });
-        DSPhongBan.add(ThemButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 110, -1, -1));
+        DSPhongBan.add(ThemButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 130, -1, -1));
 
         XoaButton.setText("Xóa");
         XoaButton.addActionListener(new java.awt.event.ActionListener() {
@@ -412,7 +459,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
                 XoaButtonActionPerformed(evt);
             }
         });
-        DSPhongBan.add(XoaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 110, -1, -1));
+        DSPhongBan.add(XoaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 130, -1, -1));
 
         SuaButton.setText("Sửa");
         SuaButton.addActionListener(new java.awt.event.ActionListener() {
@@ -420,30 +467,30 @@ public class AdminFrame1 extends javax.swing.JFrame {
                 SuaButtonActionPerformed(evt);
             }
         });
-        DSPhongBan.add(SuaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 110, -1, -1));
+        DSPhongBan.add(SuaButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 130, -1, -1));
 
-        SearchButton2.setText("Tìm");
-        SearchButton2.addActionListener(new java.awt.event.ActionListener() {
+        SearchPBButton.setText("Tìm");
+        SearchPBButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SearchButton2ActionPerformed(evt);
+                SearchPBButtonActionPerformed(evt);
             }
         });
-        DSPhongBan.add(SearchButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 150, -1, 20));
+        DSPhongBan.add(SearchPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 170, -1, 20));
 
-        SearchText2.addActionListener(new java.awt.event.ActionListener() {
+        SearchPBText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SearchText2ActionPerformed(evt);
+                SearchPBTextActionPerformed(evt);
             }
         });
-        DSPhongBan.add(SearchText2, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 150, 240, -1));
+        DSPhongBan.add(SearchPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 170, 240, -1));
 
         DSNVLabel1.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         DSNVLabel1.setText("Bấm nút bên để truy cập riêng từng phòng ban:");
-        DSPhongBan.add(DSNVLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, -1, -1));
+        DSPhongBan.add(DSNVLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, -1, -1));
 
         ChucNangLabel.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         ChucNangLabel.setText("Chức năng:");
-        DSPhongBan.add(ChucNangLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 70, -1, -1));
+        DSPhongBan.add(ChucNangLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 90, -1, -1));
 
         TTChiTietButton.setText("Thông tin chi tiết");
         TTChiTietButton.addActionListener(new java.awt.event.ActionListener() {
@@ -451,12 +498,104 @@ public class AdminFrame1 extends javax.swing.JFrame {
                 TTChiTietButtonActionPerformed(evt);
             }
         });
-        DSPhongBan.add(TTChiTietButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 150, -1, -1));
+        DSPhongBan.add(TTChiTietButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 170, -1, -1));
+
+        ResetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/Reset.png"))); // NOI18N
+        ResetButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ResetButtonMouseClicked(evt);
+            }
+        });
+        DSPhongBan.add(ResetButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 70, 30, 30));
 
         QuanLyPhongBan.addTab("tab1.1", DSPhongBan);
 
         PhongBan.setBackground(new java.awt.Color(228, 238, 244));
         PhongBan.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        ThemNVPBPanel.setBackground(new java.awt.Color(144, 210, 254));
+        ThemNVPBPanel.setLayout(new java.awt.GridBagLayout());
+
+        ThemNVPBTitle1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        ThemNVPBTitle1.setText("Thêm nhân viên mới vào phòng ban");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(21, 117, 0, 0);
+        ThemNVPBPanel.add(ThemNVPBTitle1, gridBagConstraints);
+
+        HuyNVPBButton.setText("Hủy");
+        HuyNVPBButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HuyNVPBButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(30, 83, 24, 0);
+        ThemNVPBPanel.add(HuyNVPBButton, gridBagConstraints);
+
+        XacNhanNVPBButton.setText("Xác nhận");
+        XacNhanNVPBButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                XacNhanNVPBButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(30, 77, 24, 0);
+        ThemNVPBPanel.add(XacNhanNVPBButton, gridBagConstraints);
+
+        NonNVPBTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Mã NV", "Tên NV", "Chức vụ", "Giới tính", "Email", "SDT"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        NonNVPBTable.setRowHeight(25);
+        jScrollPane3.setViewportView(NonNVPBTable);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 520;
+        gridBagConstraints.ipady = 285;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 53, 0, 51);
+        ThemNVPBPanel.add(jScrollPane3, gridBagConstraints);
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel1.setText("Danh sách nhân viên chưa thuộc phòng ban nào:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(17, 53, 0, 0);
+        ThemNVPBPanel.add(jLabel1, gridBagConstraints);
+
+        PhongBan.add(ThemNVPBPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 80, 640, 480));
 
         NhanVienPBTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -485,46 +624,82 @@ public class AdminFrame1 extends javax.swing.JFrame {
             NhanVienPBTable.getColumnModel().getColumn(7).setHeaderValue("Ngày Bắt Đầu");
         }
 
-        PhongBan.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 900, 360));
+        PhongBan.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 900, 360));
 
-        SearchText1.addActionListener(new java.awt.event.ActionListener() {
+        SearchNVPBText.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SearchText1ActionPerformed(evt);
+                SearchNVPBTextActionPerformed(evt);
             }
         });
-        PhongBan.add(SearchText1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 190, 240, -1));
+        PhongBan.add(SearchNVPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 160, 240, -1));
 
-        SearchButton1.setText("Tìm");
-        SearchButton1.addActionListener(new java.awt.event.ActionListener() {
+        SearchNVPBButton.setText("Tìm");
+        SearchNVPBButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SearchButton1ActionPerformed(evt);
+                SearchNVPBButtonActionPerformed(evt);
             }
         });
-        PhongBan.add(SearchButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 190, -1, 20));
+        PhongBan.add(SearchNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 160, -1, 20));
 
         PBTitle.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         PBTitle.setText("THÔNG TIN PHÒNG BAN");
-        PhongBan.add(PBTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, -1, -1));
+        PhongBan.add(PBTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 60, -1, -1));
 
         MaPBLabel.setFont(new java.awt.Font("Segoe UI", 1, 15)); // NOI18N
         MaPBLabel.setText("Mã phòng ban:");
-        PhongBan.add(MaPBLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 140, -1, -1));
+        PhongBan.add(MaPBLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, -1, -1));
 
         MaPBText.setFont(new java.awt.Font("Segoe UI", 1, 15)); // NOI18N
         MaPBText.setText("null");
-        PhongBan.add(MaPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 140, -1, -1));
+        PhongBan.add(MaPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, -1, -1));
 
         DSNVLabel.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
         DSNVLabel.setText("Danh sách nhân viên thuộc phòng ban:");
-        PhongBan.add(DSNVLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, -1, -1));
+        PhongBan.add(DSNVLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 170, -1, -1));
 
         TenPBLabel.setFont(new java.awt.Font("Segoe UI", 1, 15)); // NOI18N
         TenPBLabel.setText("Tên phòng ban:");
-        PhongBan.add(TenPBLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 140, -1, -1));
+        PhongBan.add(TenPBLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, -1, -1));
 
         TenPBText.setFont(new java.awt.Font("Segoe UI", 1, 15)); // NOI18N
         TenPBText.setText("null");
-        PhongBan.add(TenPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 140, -1, -1));
+        PhongBan.add(TenPBText, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, -1, -1));
+
+        ThemNVPBButton.setText("Thêm");
+        ThemNVPBButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ThemNVPBButtonActionPerformed(evt);
+            }
+        });
+        PhongBan.add(ThemNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 120, -1, -1));
+
+        XoaNVPBButton.setText("Xóa");
+        XoaNVPBButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                XoaNVPBButtonActionPerformed(evt);
+            }
+        });
+        PhongBan.add(XoaNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 120, -1, -1));
+
+        ChucNangLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        ChucNangLabel1.setText("Chức năng:");
+        PhongBan.add(ChucNangLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 80, -1, -1));
+
+        ResetNVPBButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/Reset.png"))); // NOI18N
+        ResetNVPBButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ResetNVPBButtonMouseClicked(evt);
+            }
+        });
+        PhongBan.add(ResetNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 60, 30, 30));
+
+        BackNVPBButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/back.png"))); // NOI18N
+        BackNVPBButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                BackNVPBButtonMouseClicked(evt);
+            }
+        });
+        PhongBan.add(BackNVPBButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 30, 30));
 
         QuanLyPhongBan.addTab("tab1.2", PhongBan);
 
@@ -713,9 +888,9 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     }//GEN-LAST:event_SidebarTTCNMouseClicked
 
-    private void SearchText1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchText1ActionPerformed
+    private void SearchNVPBTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchNVPBTextActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_SearchText1ActionPerformed
+    }//GEN-LAST:event_SearchNVPBTextActionPerformed
     
     private void jPanel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel12MouseClicked
         // TODO add your handling code here:
@@ -779,9 +954,22 @@ public class AdminFrame1 extends javax.swing.JFrame {
          jPanel7.setBackground( new Color(255, 255, 255));
     }//GEN-LAST:event_jPanel7MouseExited
 
-    private void SearchButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchButton1ActionPerformed
+    private void SearchNVPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchNVPBButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_SearchButton1ActionPerformed
+        String searchText = SearchNVPBText.getText();
+        if(!searchText.equals("")){
+            DefaultTableModel modelNVPB = (DefaultTableModel)NhanVienPBTable.getModel();
+            modelNVPB.setRowCount(0);
+            PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
+            for(NhanVien x:pb.getDSNhanVien()){
+                if(x.getMaNV().equals(searchText) || x.getTenNV().equals(searchText)){
+                    modelNVPB.addRow(x.getData());
+                }
+            }
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đủ thông tin!");
+        }
+    }//GEN-LAST:event_SearchNVPBButtonActionPerformed
 
     private void ThemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ThemButtonActionPerformed
         // TODO add your handling code here:
@@ -812,12 +1000,14 @@ public class AdminFrame1 extends javax.swing.JFrame {
                         break;
                     }
                 }
+                dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
                 modelDSPB.setValueAt(newName,DSPhongBanTable.getSelectedRow(), 2); 
                 ThemSuaPanel.setVisible(false);
             }else{
                 String newName = TenPBtext.getText();
                 PhongBan newPB = new PhongBan(newName);
                 dsPB.addPhongBan(newPB);
+                dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
                 Object[] newPBData = {DSPhongBanTable.getRowCount()+1, newPB.getMaPhongBan(), newPB.getTenPhongBan(), 0};
                 modelDSPB.addRow(newPBData);
                 ThemSuaPanel.setVisible(false);
@@ -847,6 +1037,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
         if(DSPhongBanTable.getSelectedRowCount()==1){
             DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
             dsPB.removePhongBan(dsPB.SearchPhongBan(DSPhongBanTable.getValueAt(DSPhongBanTable.getSelectedRow(), 1).toString())); //Xóa Phòng ban đang chọn trong dsPB
+            dsPB.writeFile(); //Ghi File sau khi chỉnh sửa
             modelDSPB.removeRow(DSPhongBanTable.getSelectedRow()); //Xóa Phòng ban đang chọn trong giao diện
             for(int i=1;i<=DSPhongBanTable.getRowCount();i++){
                 modelDSPB.setValueAt(i, i-1, 0);
@@ -857,13 +1048,26 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     }//GEN-LAST:event_XoaButtonActionPerformed
 
-    private void SearchButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchButton2ActionPerformed
+    private void SearchPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchPBButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_SearchButton2ActionPerformed
+        String searchText = SearchPBText.getText();
+        if(!searchText.equals("")){
+            DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+            modelDSPB.setRowCount(0);
+            for(PhongBan x:dsPB.getDSPhongBan()){
+                if(x.getMaPhongBan().equals(searchText) || x.getTenPhongBan().equals(searchText)){
+                    Object[] newPBData = {DSPhongBanTable.getRowCount()+1, x.getMaPhongBan(), x.getTenPhongBan(), x.getDSNhanVien().size()};
+                    modelDSPB.addRow(newPBData);
+                }
+            }
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đủ thông tin!");
+        }
+    }//GEN-LAST:event_SearchPBButtonActionPerformed
 
-    private void SearchText2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchText2ActionPerformed
+    private void SearchPBTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchPBTextActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_SearchText2ActionPerformed
+    }//GEN-LAST:event_SearchPBTextActionPerformed
 
     private void TTChiTietButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TTChiTietButtonActionPerformed
         // TODO add your handling code here:
@@ -879,6 +1083,9 @@ public class AdminFrame1 extends javax.swing.JFrame {
             for(NhanVien x:pb.getDSNhanVien()){
                 modelNVPB.addRow(x.getData());
             }
+            glassPane.remove(ThemSuaPanel);
+            glassPane.add(ThemNVPBPanel);
+            ThemNVPBPanel.setVisible(false);
             QuanLyPhongBan.setSelectedIndex(1);
             
         }else{
@@ -889,6 +1096,74 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private void TenPBtextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TenPBtextActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_TenPBtextActionPerformed
+
+    private void ResetButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ResetButtonMouseClicked
+        // TODO add your handling code here:
+        ResetTablePB();
+    }//GEN-LAST:event_ResetButtonMouseClicked
+
+    private void ThemNVPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ThemNVPBButtonActionPerformed
+        // TODO add your handling code here:
+        SetupNonNVPBTable();
+        glassPane.setVisible(true);
+        ThemNVPBPanel.setVisible(true);
+        
+    }//GEN-LAST:event_ThemNVPBButtonActionPerformed
+
+    private void XoaNVPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XoaNVPBButtonActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel modelNVPB = (DefaultTableModel)NhanVienPBTable.getModel();
+        if(NhanVienPBTable.getSelectedRowCount()==1){
+            int ind = NhanVienPBTable.getSelectedRow();
+            String maNV = NhanVienPBTable.getValueAt(ind, 0).toString();
+            NhanVien nv = dsNV.searchNhanVien(maNV);
+            PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
+            pb.removeNhanVien(nv);
+            dsPB.writeFile();
+            modelNVPB.removeRow(ind);
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 nhân viên để thêm!");
+        }
+    }//GEN-LAST:event_XoaNVPBButtonActionPerformed
+
+    private void HuyNVPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HuyNVPBButtonActionPerformed
+        // TODO add your handling code here:
+        glassPane.setVisible(false);
+        ThemNVPBPanel.setVisible(false);
+    }//GEN-LAST:event_HuyNVPBButtonActionPerformed
+
+    private void XacNhanNVPBButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_XacNhanNVPBButtonActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel modelNVPB = (DefaultTableModel)NhanVienPBTable.getModel();
+        if(NonNVPBTable.getSelectedRowCount()==1){
+            int ind = NonNVPBTable.getSelectedRow();
+            String maNV = NonNVPBTable.getValueAt(ind, 0).toString();
+            NhanVien nv = dsNV.searchNhanVien(maNV);
+            PhongBan pb = dsPB.SearchPhongBan(MaPBText.getText());
+            pb.addNhanVien(nv);
+            dsPB.writeFile();
+            modelNVPB.addRow(nv.getData());
+            glassPane.setVisible(false);
+            ThemNVPBPanel.setVisible(false);
+        }else{
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 nhân viên để thêm!");
+        }
+    }//GEN-LAST:event_XacNhanNVPBButtonActionPerformed
+
+    private void ResetNVPBButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ResetNVPBButtonMouseClicked
+        // TODO add your handling code here:
+        ResetTableNVPB();
+    }//GEN-LAST:event_ResetNVPBButtonMouseClicked
+
+    private void BackNVPBButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BackNVPBButtonMouseClicked
+        // TODO add your handling code here:
+        DefaultTableModel modelDSPB = (DefaultTableModel)DSPhongBanTable.getModel();
+        modelDSPB.setValueAt(dsPB.SearchPhongBan(MaPBText.getText()).getDSNhanVien().size(), DSPhongBanTable.getSelectedRow(), 3);
+        glassPane.remove(ThemNVPBPanel);
+        glassPane.add(ThemSuaPanel);
+        ThemSuaPanel.setVisible(false);
+        QuanLyPhongBan.setSelectedIndex(0);
+    }//GEN-LAST:event_BackNVPBButtonMouseClicked
     
     
     /**
@@ -940,7 +1215,9 @@ public class AdminFrame1 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel AppName;
+    private javax.swing.JLabel BackNVPBButton;
     private javax.swing.JLabel ChucNangLabel;
+    private javax.swing.JLabel ChucNangLabel1;
     private javax.swing.JPanel DSDuAN;
     private javax.swing.JLabel DSNVLabel;
     private javax.swing.JLabel DSNVLabel1;
@@ -950,17 +1227,21 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JPanel Footer;
     private javax.swing.JPanel Header;
     private javax.swing.JButton HuyButton;
+    private javax.swing.JButton HuyNVPBButton;
     private javax.swing.JLabel LogoutButton;
     private javax.swing.JLabel MaPBLabel;
     private javax.swing.JLabel MaPBText;
     private javax.swing.JTable NhanVienPBTable;
+    private javax.swing.JTable NonNVPBTable;
     private javax.swing.JLabel PBTitle;
     private javax.swing.JPanel PhongBan;
     private javax.swing.JTabbedPane QuanLyPhongBan;
-    private javax.swing.JButton SearchButton1;
-    private javax.swing.JButton SearchButton2;
-    private javax.swing.JTextField SearchText1;
-    private javax.swing.JTextField SearchText2;
+    private javax.swing.JLabel ResetButton;
+    private javax.swing.JLabel ResetNVPBButton;
+    private javax.swing.JButton SearchNVPBButton;
+    private javax.swing.JTextField SearchNVPBText;
+    private javax.swing.JButton SearchPBButton;
+    private javax.swing.JTextField SearchPBText;
     private javax.swing.JPanel Sidebar;
     private javax.swing.JButton SidebarDuAn;
     private javax.swing.JButton SidebarPhongBan;
@@ -974,10 +1255,16 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JTextField TenPBtext;
     private javax.swing.JLabel TenTPLabel;
     private javax.swing.JButton ThemButton;
+    private javax.swing.JButton ThemNVPBButton;
+    private javax.swing.JPanel ThemNVPBPanel;
+    private javax.swing.JLabel ThemNVPBTitle1;
     private javax.swing.JPanel ThemSuaPanel;
     private javax.swing.JLabel ThemSuaTitle;
     private javax.swing.JButton XacNhanButton;
+    private javax.swing.JButton XacNhanNVPBButton;
     private javax.swing.JButton XoaButton;
+    private javax.swing.JButton XoaNVPBButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1005,6 +1292,7 @@ public class AdminFrame1 extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane2;
     // End of variables declaration//GEN-END:variables
 }

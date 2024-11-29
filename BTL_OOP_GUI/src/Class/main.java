@@ -11,6 +11,8 @@ import gui.Login;
 import java.io.File;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -37,6 +39,8 @@ public class main{
 //            System.out.println(tenNV+" "+chucVu+" "+GioiTinh+" "+email+" "+SoDT+" "+NgaySinh+" "+NgayBatDau);
             dSNhanVien.addDSNhanVien(nv);
         }
+        
+
         
         new Login(dSNhanVien, dsA, dsL).setVisible(true);
         

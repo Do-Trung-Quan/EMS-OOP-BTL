@@ -47,4 +47,13 @@ public class DSNhanVien{
             }
         }
     }
+    
+    public NhanVien searchNhanVien(String n){
+        for(NhanVien x:dsNhanVien){
+            if(x.getMaNV().equals(n) || x.getTenNV().equals(n)){
+                return x;
+            }
+        }
+        return null;
+    }
 }
